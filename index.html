@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>मी मस्त</title>
+    <style>
+body {
+  font-family: "Laila", serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f8ff;
+  color: #222;
+  font-weight: bold;
+}
+
+header {
+  background-color: #008080;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.blink {
+  animation: blinker 2.5s linear infinite;
+  color: #ffffff;
+  font-size: 1.4rem;
+  margin-top: 10px;
+}
+
+@keyframes blinker {
+  70% {
+    opacity: 0;
+  }
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  background-color: #b2d8d8;
+  flex-wrap: wrap;
+}
+
+nav button {
+  background: none;
+  border: none;
+  padding: 15px 25px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+  color: #222;
+}
+
+nav button:hover {
+  background-color: #cceeee;
+  color: #000;
+}
+
+nav button.active {
+  background-color: #e0af0c;
+  color: white;
+  border-radius: 5px 5px 0 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
+
+.content {
+  display: none;
+}
+
+.content.active {
+  display: block;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+input[type="text"],
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  margin-left: -10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-weight: bold;
+  font-size: 16px;
+  transition: border 0.3s, background-color 0.3s;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  border: 1px solid #008080;
+  background-color: #e6f7f7;
+  outline: none;
+}
+
+textarea {
+  height: 120px;
+  resize: vertical;
+}
+
+button[type="submit"] {
+  background-color: #008080;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+button[type="submit"]:hover {
+  background-color: #006666;
+  transform: scale(1.02);
+}
+
+.poem {
+  background-color: #ffffff;
+  padding: 15px;
+  border-left: 5px solid #008080;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  position: relative;
+  font-weight: bold;
+}
+
+.poem h4 {
+  margin: 0 0 5px;
+  font-weight: bold;
+}
+
+.poem p {
+  white-space: pre-wrap;
+}
+
+.poem .actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.poem .actions button {
+  background: none;
+  border: none;
+  color: #4B0082;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.poem .actions button:hover {
+  color: #6a0dad;
+}
+
+.saved-dropdown {
+  margin: 10px 0 20px;
+  padding: 8px;
+  width: 100%;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  border: 1px solid #ccc;
+}
+
+.saved-dropdown:focus {
+  border: 1px solid #008080;
+  outline: none;
+  background-color: #e6f7f7;
+}
+
+@media (max-width: 450px) {
+  nav {
+    flex-direction: column;
+  }
+
+  nav button {
+    padding: 12px;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  input[type="text"],
+  textarea {
+    font-size: 15px;
+  }
+
+  button[type="submit"],
+  .saved-dropdown {
+    font-size: 15px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .blink {
+    font-size: 1.2rem;
+  }
+}
+
+  .datetime-container {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    color: white;
+    font-size: 0.75rem;  /* Small size */
+    line-height: 1.2;
+    text-align: right;
+    font-weight: normal;
+    font-family: 'Arial', sans-serif;
+    z-index: 999;
+  }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>मी मस्त</h1>
+    <div class="blink">कवी दिलीप अहिरे</div>
+    <div class="datetime-container">
+      <span id="current-time-date"></span>
+    </div>
+    </div>
+  </header>
+  <nav>
+    <button class="tab active" data-tab="gadya">गद्य</button>
+    <button class="tab" data-tab="padya">पद्य</button>
+    <button class="tab" data-tab="charoli">चारोळी</button>
+    <a href="photo.html"><button>फोटो</button></a>
+  </nav>
+
+  <div class="container">
+    <form id="poemForm">
+      <input type="text" id="name" placeholder="शिर्षक" required>
+      <textarea id="poem" placeholder="आपली गद्य येथे लिहा..." required></textarea>
+      <button type="submit">जतन करा</button>
+    </form>
+
+    <section id="gadya" class="content active">
+      <h3>गद्य सादरीकरण</h3>
+      <select class="saved-dropdown"></select>
+      <div class="list"></div>
+    </section>
+
+    <section id="padya" class="content">
+      <h3>पद्य सादरीकरण</h3>
+      <select class="saved-dropdown"></select>
+      <div class="list"></div>
+    </section>
+
+    <section id="charoli" class="content">
+      <h3>चारोळी सादरीकरण</h3>
+      <select class="saved-dropdown"></select>
+      <div class="list"></div>
+    </section>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const contents = document.querySelectorAll(".content");
+    const form = document.getElementById("poemForm");
+    const nameInput = document.getElementById("name");
+    const poemInput = document.getElementById("poem");
+
+    let currentCategory = "gadya";
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        contents.forEach((c) => c.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+        currentCategory = tab.dataset.tab;
+      
+          poemInput.placeholder =
+         currentCategory === "gadya"
+        ? "आपले गद्य येथे लिहा..."
+        : currentCategory === "padya"
+        ? "आपले पद्य येथे लिहा..."
+        : "आपली चारोळी येथे लिहा...";
+      });
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      let poem = poemInput.value.trim();
+      if (!name || !poem) return;
+
+      poem = poem.replace(/\n?@ दिलीप अहिरे(\n🕒.*)?$/, "").trim();
+
+      const timestamp = new Date().toLocaleString("mr-IN");
+      poem += `\n\n@ दिलीप अहिरे\n🕒 ${timestamp}`;
+
+
+      const entry = { name, poem };
+      const saved = loadFromLocalStorage(currentCategory);
+      saved.push(entry);
+      saveToLocalStorage(currentCategory, saved);
+      renderSubmission(name, poem, currentCategory);
+      updateDropdown(currentCategory);
+      form.reset();
+    });
+
+
+
+    function updateTimeDate() {
+      const now = new Date();
+
+      const date = now.toLocaleDateString('mr-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const time = now.toLocaleTimeString('mr-IN');
+
+      document.getElementById('current-time-date').textContent = `${date} | ${time}`;
+    }
+
+    setInterval(updateTimeDate, 1000);
+    updateTimeDate();
+
+
+    function renderSubmission(name, poem, category) {
+      const container = document.querySelector(`#${category} .list`);
+      const div = document.createElement("div");
+      div.className = "poem";
+      div.innerHTML = `
+        <h4>${name}</h4>
+        <p>${poem.replace(/\n/g, "<br>")}</p>
+        <div class="actions">
+          <button class="edit-btn">✏️</button>
+          <button class="delete-btn">🗑️</button>
+          <button class="whatsapp-btn">🟢</button>
+        </div>
+      `;
+
+      // Edit
+      div.querySelector(".edit-btn").onclick = () => {
+        nameInput.value = name;
+        poemInput.value = poem;
+        const updated = loadFromLocalStorage(category).filter(
+          (entry) => !(entry.name === name && entry.poem === poem)
+        );
+        saveToLocalStorage(category, updated);
+        container.removeChild(div);
+        updateDropdown(category);
+      };
+
+      // Delete
+      div.querySelector(".delete-btn").onclick = () => {
+        const confirmed = confirm("तुम्हाला ही रचना खरोखर हटवायची आहे का?");
+        if (!confirmed) return;
+
+        const updated = loadFromLocalStorage(category).filter(
+          (entry) => !(entry.name === name && entry.poem === poem)
+        );
+        saveToLocalStorage(category, updated);
+        container.removeChild(div);
+        updateDropdown(category);
+      };
+
+      // WhatsApp Share
+      div.querySelector(".whatsapp-btn").onclick = () => {
+        const text = `*${name}*\n\n${poem}`;
+        const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+        window.open(url, "_blank");
+      };
+      container.appendChild(div);
+    }
+
+    function saveToLocalStorage(category, data) {
+      localStorage.setItem(category, JSON.stringify(data));
+    }
+
+    function loadFromLocalStorage(category) {
+      return JSON.parse(localStorage.getItem(category) || "[]");
+    }
+
+    function renderAllFromLocalStorage() {
+      ["gadya", "padya", "charoli"].forEach((category) => {
+        const entries = loadFromLocalStorage(category);
+        entries.forEach((entry) => {
+          renderSubmission(entry.name, entry.poem, category);
+        });
+        updateDropdown(category);
+      });
+    }
+
+    function updateDropdown(category) {
+      const dropdown = document.querySelector(`#${category} .saved-dropdown`);
+      const entries = loadFromLocalStorage(category);
+
+      dropdown.innerHTML = `<option value="">-- जतन केलेली रचना निवडा --</option>`;
+      entries.forEach((entry, index) => {
+        dropdown.innerHTML += `<option value="${index}">${entry.name}</option>`;
+      });
+
+      dropdown.onchange = function () {
+        const idx = this.value;
+        if (idx !== "") {
+          const entry = entries[idx];
+          alert(`शिर्षक: ${entry.name}\n\n${entry.poem}`);
+        }
+      };
+    }
+
+    renderAllFromLocalStorage();
+  </script>
+</body>
+</html>

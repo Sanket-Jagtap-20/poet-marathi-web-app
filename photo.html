@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>मी मस्त</title>
+  <style>
+    :root {
+      --primary: #008080;
+      --accent: #006666;
+      --bg: #f0f8ff;
+      --font: "Laila", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: #222;
+      font-weight: bold;
+    }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.7rem;
+    }
+
+    .blink {
+      animation: blinker 2.5s linear infinite;
+      font-size: 1.1rem;
+      margin-top: 5px;
+    }
+
+    @keyframes blinker {
+      70% { opacity: 0; }
+    }
+
+    .datetime-container {
+      position: absolute;
+      top: 4px;
+      right: 10px;
+      font-size: 0.7rem;
+      font-weight: normal;
+      text-align: right;
+    }
+
+    .container {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .marathi-btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin-bottom: 1rem;
+    }
+
+    .marathi-btn:hover {
+      background-color: var(--accent);
+      transform: scale(1.03);
+    }
+
+    .photo-display {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .photo-item {
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      width: 48%;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .photo-item img {
+      max-width: 100%;
+      max-height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .photo-item textarea {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      height: 14rem;
+      resize: vertical;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: var(--font);
+      box-sizing: border-box;
+    }
+
+    .photo-item textarea:focus {
+      border-color: var(--primary);
+      background-color: #e6f7f7;
+      outline: none;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .button-group button {
+      flex: 1;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 6px;
+      color: var(--primary);
+      transition: color 0.3s ease;
+    }
+
+    .button-group button:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 500px) {
+      .photo-item {
+        width: 48%;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .marathi-btn {
+        font-size: 0.95rem;
+        padding: 9px 16px;
+      }
+
+      .photo-item textarea {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .photo-item {
+        width: 100%;
+      }
+
+      .datetime-container {
+        font-size: 0.6rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>मी मस्त</h1>
+    <div class="blink">कवी दिलीप अहिरे</div>
+    <div class="datetime-container">
+      <span id="current-time-date"></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <input type="file" id="photo-input" accept="image/*" style="display: none;" />
+    <button class="marathi-btn" onclick="document.getElementById('photo-input').click()">फोटो निवडा</button>
+
+    <div class="photo-display" id="photo-display"></div>
+  </div>
+
+  <script>
+    function updateTimeDate() {
+      const now = new Date();
+      const date = now.toLocaleDateString('mr-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      const time = now.toLocaleTimeString('mr-IN');
+      document.getElementById('current-time-date').textContent = `${date} | ${time}`;
+    }
+
+    setInterval(updateTimeDate, 1000);
+    updateTimeDate();
+
+    const photoInput = document.getElementById('photo-input');
+    const photoDisplay = document.getElementById('photo-display');
+
+    window.onload = function () {
+      const savedItems = JSON.parse(localStorage.getItem("photoNotes")) || [];
+      savedItems.forEach(({ image, note }) => {
+        addPhotoToDisplay(image, note);
+      });
+    };
+
+    photoInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          addPhotoToDisplay(e.target.result, "");
+          saveToLocalStorage(e.target.result, "");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+function addPhotoToDisplay(imageSrc, noteText) {
+  const photoItem = document.createElement('div');
+  photoItem.className = 'photo-item';
+
+  const img = document.createElement('img');
+  img.src = imageSrc;
+
+  const textarea = document.createElement('textarea');
+  textarea.placeholder = 'विचार लिहा';
+  textarea.value = noteText;
+
+  // Auto-save while typing
+  textarea.addEventListener('input', () => {
+    updateLocalStorage();
+  });
+
+  const buttonGroup = document.createElement('div');
+  buttonGroup.className = 'button-group';
+
+  // 🔧 EDIT BUTTON: Enables editing
+const editBtn = createIconButton("✏️", () => {
+  textarea.disabled = false;
+  textarea.focus();
+});
+
+// 💾 SAVE BUTTON: Saves and disables editing
+const saveBtn = createIconButton("💾", () => {
+  let poem = textarea.value;
+
+  // Remove existing signature block (if any)
+  poem = poem.replace(/\n*\n*@ दिलीप अहिरे\n९९२२४३५०७१\n🕒 .+$/, "").trim();
+
+  const timestamp = new Date().toLocaleString("mr-IN");
+  poem += `\n\n@ दिलीप अहिरे\n९९२२४३५०७१\n🕒 ${timestamp}`;
+
+  textarea.value = poem;
+  textarea.disabled = true; // Disable editing after save
+  textarea.blur();
+  updateLocalStorage();
+});
+
+
+
+const shareBtn = createIconButton("📤", async () => {
+  try {
+    const tempImg = new Image();
+    tempImg.src = imageSrc;
+    await tempImg.decode();
+
+    const canvasWidth = 600;
+    const aspectRatio = 2 / 3;
+    const canvasHeight = Math.floor(canvasWidth / aspectRatio);
+
+    const padding = 20;
+    const fontSize = 30; // 🔸 Bigger font size
+    const lineHeight = fontSize + 16; // 🔸 More spacing between lines
+
+    const rawPoem = textarea.value.trim();
+    const rawLines = rawPoem.split('\n');
+    let lines = [];
+
+    const ctxTest = document.createElement("canvas").getContext("2d");
+    ctxTest.font = `bold ${fontSize}px sans-serif`;
+
+    for (let line of rawLines) {
+      let current = '';
+      const words = line.split(' ');
+      for (let word of words) {
+        const testLine = current + word + ' ';
+        if (ctxTest.measureText(testLine).width > canvasWidth - 2 * padding) {
+          lines.push(current.trim());
+          current = word + ' ';
+        } else {
+          current = testLine;
+        }
+      }
+      if (current.trim()) lines.push(current.trim());
+    }
+
+    const canvas = document.createElement("canvas");
+    const scaleFactor = window.devicePixelRatio || 2;
+    canvas.width = canvasWidth * scaleFactor;
+    canvas.height = canvasHeight * scaleFactor;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(scaleFactor, scaleFactor);
+
+    // Background
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // Image sizing
+    const maxImageHeight = canvasHeight * 0.55;
+    const maxImageWidth = canvasWidth * 0.85;
+    const imgScale = Math.min(
+      maxImageWidth / tempImg.width,
+      maxImageHeight / tempImg.height
+    );
+    const imgW = tempImg.width * imgScale;
+    const imgH = tempImg.height * imgScale;
+    const imgX = (canvasWidth - imgW) / 2;
+    const imgY = padding;
+    ctx.drawImage(tempImg, imgX, imgY, imgW, imgH);
+
+    // Draw poem text
+    const textStartY = imgY + imgH + 25;
+    ctx.fillStyle = "#000";
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
+
+    lines.forEach((line, i) => {
+      ctx.fillText(line, canvasWidth / 2, textStartY + i * lineHeight);
+    });
+
+    // Convert and share
+    canvas.toBlob(async (blob) => {
+      const file = new File([blob], "poem.png", { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: "कविता",
+          text: rawPoem
+        });
+      } else {
+        alert("शेअर करता येत नाही. कृपया दुसरे ब्राउझर वापरा.");
+      }
+    }, "image/png");
+
+  } catch (err) {
+    alert("शेअर करताना त्रुटी आली: " + err.message);
+  }
+});
+
+
+  const deleteBtn = createIconButton("🗑️", () => {
+    const confirmDelete = confirm("कृपया खात्री करा की तुम्ही ही कविता आणि फोटो हटवू इच्छिता?");
+    if (confirmDelete) {
+      photoItem.remove();
+      updateLocalStorage();
+    }
+  });
+
+  // Append buttons
+  buttonGroup.append(editBtn, saveBtn, shareBtn, deleteBtn);
+  photoItem.append(img, textarea, buttonGroup);
+  document.getElementById('photo-display').appendChild(photoItem);
+}
+
+
+    function updateLocalStorage() {
+      const items = [];
+      document.querySelectorAll('.photo-item').forEach(item => {
+        const img = item.querySelector('img').src;
+        const note = item.querySelector('textarea').value;
+        items.push({ image: img, note: note });
+      });
+      localStorage.setItem("photoNotes", JSON.stringify(items));
+    }
+
+
+    function createIconButton(icon, onClick) {
+      const btn = document.createElement('button');
+      btn.innerText = icon;
+      btn.style.border = "none";
+      btn.style.background = "transparent";
+      btn.style.fontSize = "1.4rem";
+      btn.style.cursor = "pointer";
+      btn.addEventListener('click', onClick);
+      return btn;
+    }
+
+
+    function saveToLocalStorage(image, note) {
+      const current = JSON.parse(localStorage.getItem("photoNotes")) || [];
+      current.push({ image, note });
+      localStorage.setItem("photoNotes", JSON.stringify(current));
+    }
+
+    function updateLocalStorage() {
+      const items = [];
+      document.querySelectorAll('.photo-item').forEach(item => {
+        const img = item.querySelector('img').src;
+        const note = item.querySelector('textarea').value;
+        items.push({ image: img, note: note });
+      });
+      localStorage.setItem("photoNotes", JSON.stringify(items));
+    }
+  </script>
+
+</body>
+</html>
